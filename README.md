@@ -4,21 +4,21 @@ Bases Between Given Exponents (BBGE) is an esoteric, non-Turing complete languag
 ## BNF
 ```
 <program>     ::=
-				<bases><between><given><exponents>
+                 <bases><between><given><exponents>
 <bases>       ::=
-				b
+                 b
 <between>     ::=
-				<lowerBound>“-”<upperBound>
+                 <lowerBound>“-”<upperBound>
 <lowerBound>  ::=
-				<numberValue>
+                 <numberValue>
 <upperBound>  ::=
-				<numberValue>
+                 <numberValue>
 <given>       ::=
-				"^"
+                 "^"
 <exponents>   ::=
-				<exponent><exponent>
+                 <exponent><exponent>
 <exponent>    ::=
-				<numberValue>e
+                 <numberValue>e
 <numberValue> ::=
                  <digit>
                  |<digit><numberValue>
