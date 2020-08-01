@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 
@@ -61,82 +62,132 @@ int main(int argc, char *argv[])
 			}
 			argvI++;
 		}
-
 	}
 #pragma endregion
 
 
-	/*unsigned int uIntMax = 2;
-	int numberOfBitsInAnUnSignedInt = sizeof(unsigned int) * 8;
-	for (int i = 0; i <  numberOfBitsInAnUnSignedInt; i++)
-	{
-		uIntMax = uIntMax * uIntMax;
-	}
-	printf("\n%d\n", uIntMax);*/
+
+	int lowerBound = 0;
+	int upperBound = 0;
+	int exponentA = 0;
+	int exponentB = 0;
+
 	char intBuffer[10];
 	int intBufferI = 0;
-	//printf("0");
-	if (sourceState == ArgumentS)
+	int _sourceI = 0;
+
+	while (_source[_sourceI] != '\0')
 	{
-		int _sourceI;
-		while (_source[_sourceI] != '\0')
+		if ('b' == _source[_sourceI++])
 		{
-			if ('b' == _source[_sourceI++])
+			//"b"[lowerBound]
+			intBufferI = 0;
+			while (_source[_sourceI] != '\0' && _source[_sourceI] != '-')
 			{
-				//"b"[lowerBound]
-				intBufferI = 0;
-				while (_source[_sourceI] != '\0' && _source[_sourceI] != '-')
-				{
-					intBuffer[intBufferI++] = _source[_sourceI++];
-				}
-				unsigned int lowerBound = atoi(intBuffer);
-
-				//"b"<lowerBound>"-"
-				_sourceI++;
-
-				//"b"<lowerBound>"-"<upperBound>
-				intBufferI = 0;
-				while (_source[_sourceI] != '\0' && _source[_sourceI] != 'g')
-				{
-					intBuffer[intBufferI++] = _source[_sourceI++];
-				}
-				unsigned int upperBound = atoi(intBuffer);
-
-
+				intBuffer[intBufferI++] = _source[_sourceI++];
 			}
-			else
+			lowerBound = atoi(intBuffer);
+			memset(&intBuffer[0], 0, sizeof(intBuffer));
+
+			//"b"<lowerBound>"-"
+			_sourceI++;
+
+			//"b"<lowerBound>"-"<upperBound>
+			intBufferI = 0;
+			while (_source[_sourceI] != '\0' && _source[_sourceI] != 'g')
 			{
-				printf("Error: Invalid BBGE. Missing base statment 'b'...");
-				return 0;
+				intBuffer[intBufferI++] = _source[_sourceI++];
 			}
+			upperBound = atoi(intBuffer);
+			memset(&intBuffer[0], 0, sizeof(intBuffer));
+
+			//"b"<lowerBound>"-"<upperBound>"g"
+			_sourceI++;
+
+			//"b"<lowerBound>"-"<upperBound>"g"<exponent>
+			intBufferI = 0;
+			while (_source[_sourceI] != '\0' && _source[_sourceI] != 'e')
+			{
+				intBuffer[intBufferI++] = _source[_sourceI++];
+			}
+			exponentA = atoi(intBuffer);
+			memset(&intBuffer[0], 0, sizeof(intBuffer));
+
+			//"b"<lowerBound>"-"<upperBound>"g"<exponent>"e"
+			_sourceI++;
+
+			//"b"<lowerBound>"-"<upperBound>"g"<exponent>
+			intBufferI = 0;
+			while (_source[_sourceI] != '\0' && _source[_sourceI] != 'e')
+			{
+				intBuffer[intBufferI++] = _source[_sourceI++];
+			}
+			exponentB = atoi(intBuffer);
+			memset(&intBuffer[0], 0, sizeof(intBuffer));
+
+			//"b"<lowerBound>"-"<upperBound>"g"<exponent>"e"<exponent>"e"
+			_sourceI++;
+
 		}
-		/*FILE *f;
-		f = fopen(_outputFileName, "w");
-		fprintf(f, "#include<stdio.h>\n");
-		fclose(f);*/
-	}
-	else
-	{
-		printf("Error: non Argument source is not implemented");
+		else
+		{
+			printf("Error: Invalid BBGE. Missing base statment 'b'...");
+			return 0;
+		}
 	}
 
+	//fprintf(f, "\n");
+
+	FILE *f;
+	f = fopen(_outputFileName, "w");
+	
+	fprintf(f, "#include<stdio.h>\n");
+	fprintf(f, "#define LOWERBOUND %d\n", lowerBound);
+	fprintf(f, "#define UPPERBOUND %d\n", upperBound);
+
+	fprintf(f, "void main()\n");
+	fprintf(f, "{\n");
+
+	fprintf(f, "int exponentAResults[UPPERBOUND];\n");
+	fprintf(f, "for (int i = LOWERBOUND; i < UPPERBOUND; i++)\n");
+	fprintf(f, "{\n");
+
+	fprintf(f, "exponentAResults[i] = i");
+	for (int i = 1; i < exponentA; i++)
+	{
+		fprintf(f, " * i");
+	}
+	fprintf(f, ";\n");
+	fprintf(f, "}\n");
+
+	fprintf(f, "int exponentBBase = 0;\n");
+	fprintf(f, "int exponentBResult = 0;\n");
+	fprintf(f, "for (int exponentAResultsI = LOWERBOUND; exponentAResultsI < UPPERBOUND; exponentAResultsI++)\n");
+	fprintf(f, "{\n");
+	fprintf(f, "while (exponentBResult < exponentAResults[exponentAResultsI])\n");
+	fprintf(f, "{\n");
+
+	fprintf(f, "exponentBResult = exponentBBase");
+	for (int i = 1; i < exponentB; i++)
+	{
+		fprintf(f, " * exponentBBase");
+	}
+	fprintf(f, ";\n");
+
+	fprintf(f, "exponentBBase++;\n");
+	fprintf(f, "}\n");
+
+
+	fprintf(f, "if (exponentBResult == exponentAResults[exponentAResultsI])\n");
+	fprintf(f, "{\n");
+	fprintf(f, "printf(\"%%d\\n\", exponentAResultsI);\n");
+	fprintf(f, "}\n");
+	fprintf(f, "}\n");
+	fprintf(f, "}\n");
+
+
+
+
+	fclose(f);
 	return 0;
 }
-//
-//void GetSource(char* source)
-//{
-//	switch (sourceState)
-//	{
-//	case ConsoleS:
-//		fgets(source,200,stdin)
-//		break;
-//	case FileS:
-//		printf("Error: Loading Source from file currently unsupported");
-//		break;
-//	case ArgumentS:
-//		break;
-//	default:
-//		printf("Error: Invalid SourceState");
-//		return 0;
-//	}
-//}
