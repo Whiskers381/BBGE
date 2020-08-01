@@ -14,7 +14,7 @@ Bases Between Given Exponents (BBGE) is an esoteric, non-Turing complete languag
 <upperBound>  ::=
                  <numberValue>
 <given>       ::=
-                 "^"
+                 g
 <exponents>   ::=
                  <exponent><exponent>
 <exponent>    ::=
