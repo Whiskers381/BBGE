@@ -9,7 +9,7 @@
 <upperBound>		::=
 						<numberValue>
 <given>				::=
-						"^"
+						g
 <exponents>			::=
 						<exponent><exponent>
 <exponent>			::=
