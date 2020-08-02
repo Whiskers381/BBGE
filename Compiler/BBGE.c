@@ -14,16 +14,31 @@ enum SourceType _sourceState = ConsoleS;
 char* _sourceFileName;
 char* _source;
 
-void UpdateSource()
+int UpdateSource()
 {
 	switch (_sourceState)
 	{
 	case ConsoleS:
-		break;
+		;
+		char inputBuffer[46];
+		memset(&inputBuffer[0], 0, sizeof(inputBuffer));
+
+		printf(">");
+		scanf("%45s", inputBuffer);
+		_source = strdup(inputBuffer);
+
+		if (inputBuffer[0] == 'b')
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	case FileS:
-		break;
+		return 0;
 	case ArgumentS:
-		break;
+		return 0;
 	}
 }
 
@@ -101,8 +116,8 @@ int main(int argc, char *argv[])
 #pragma region Argument Routing
 	if (argc == 1)
 	{
-		printf("No opions. Running as interpreture...");
-		/*run as an interpreture*/
+		_sourceState = ConsoleS;
+		UpdateSource();
 	}
 	else
 	{
@@ -115,8 +130,14 @@ int main(int argc, char *argv[])
 			{
 				if ('o' == argv[argvI][1])
 				{
-					_outPutState = ConsoleO;
+					//Compile into C. Output to dir/filename spesified next
+					_outPutState = FileO;
 					_outputFileName = argv[++argvI];
+				}
+				else if ('d' == argv[argvI][1])
+				{
+					//Compile into C. Output to default location
+					_outPutState = FileO;
 				}
 				else if ('f' == argv[argvI][1])
 				{
@@ -145,78 +166,77 @@ int main(int argc, char *argv[])
 	}
 #pragma endregion
 
-
-	int lowerBound = 0;
-	int upperBound = 0;
-	int exponentA = 0;
-	int exponentB = 0;
-	printf("0");
-	ParseSource(&lowerBound, &upperBound, &exponentA, &exponentB);
-	printf("0");
-	//fprintf(f, "\n");
-	switch (_outPutState)
+	int stillGotWorkToDo = 1;
+	while (stillGotWorkToDo)
 	{
-	case ConsoleO:
-		;
-		printf(":\n");
-		break;
-	case FileO:
-		;
-		FILE *f;
-		f = fopen(_outputFileName, "w");
+		int lowerBound = 0;
+		int upperBound = 0;
+		int exponentA = 0;
+		int exponentB = 0;
+		ParseSource(&lowerBound, &upperBound, &exponentA, &exponentB);
 
-		fprintf(f, "#include<stdio.h>\n");
-		fprintf(f, "#define LOWERBOUND %d\n", lowerBound);
-		fprintf(f, "#define UPPERBOUND %d\n", upperBound);
-
-		fprintf(f, "void main()\n");
-		fprintf(f, "{\n");
-
-		fprintf(f, "int exponentAResults[UPPERBOUND];\n");
-		fprintf(f, "for (int i = LOWERBOUND; i < UPPERBOUND; i++)\n");
-		fprintf(f, "{\n");
-
-		fprintf(f, "exponentAResults[i] = i");
-		for (int i = 1; i < exponentA; i++)
+		//fprintf(f, "\n");
+		switch (_outPutState)
 		{
-			fprintf(f, " * i");
+		case ConsoleO:
+			;
+			printf(":\n");
+			break;
+		case FileO:
+			;
+			FILE *f;
+			f = fopen(_outputFileName, "w");
+
+			fprintf(f, "#include<stdio.h>\n");
+			fprintf(f, "#define LOWERBOUND %d\n", lowerBound);
+			fprintf(f, "#define UPPERBOUND %d\n", upperBound);
+
+			fprintf(f, "void main()\n");
+			fprintf(f, "{\n");
+
+			fprintf(f, "int exponentAResults[UPPERBOUND];\n");
+			fprintf(f, "for (int i = LOWERBOUND; i < UPPERBOUND; i++)\n");
+			fprintf(f, "{\n");
+
+			fprintf(f, "exponentAResults[i] = i");
+			for (int i = 1; i < exponentA; i++)
+			{
+				fprintf(f, " * i");
+			}
+			fprintf(f, ";\n");
+			fprintf(f, "}\n");
+
+			fprintf(f, "int exponentBBase = 0;\n");
+			fprintf(f, "int exponentBResult = 0;\n");
+			fprintf(f, "for (int exponentAResultsI = LOWERBOUND; exponentAResultsI < UPPERBOUND; exponentAResultsI++)\n");
+			fprintf(f, "{\n");
+			fprintf(f, "while (exponentBResult < exponentAResults[exponentAResultsI])\n");
+			fprintf(f, "{\n");
+
+			fprintf(f, "exponentBResult = exponentBBase");
+			for (int i = 1; i < exponentB; i++)
+			{
+				fprintf(f, " * exponentBBase");
+			}
+			fprintf(f, ";\n");
+
+			fprintf(f, "exponentBBase++;\n");
+			fprintf(f, "}\n");
+
+
+			fprintf(f, "if (exponentBResult == exponentAResults[exponentAResultsI])\n");
+			fprintf(f, "{\n");
+			fprintf(f, "printf(\"%%d\\n\", exponentAResultsI);\n");
+			fprintf(f, "}\n");
+			fprintf(f, "}\n");
+			fprintf(f, "}\n");
+
+			fclose(f);
+			break;
 		}
-		fprintf(f, ";\n");
-		fprintf(f, "}\n");
+		
 
-		fprintf(f, "int exponentBBase = 0;\n");
-		fprintf(f, "int exponentBResult = 0;\n");
-		fprintf(f, "for (int exponentAResultsI = LOWERBOUND; exponentAResultsI < UPPERBOUND; exponentAResultsI++)\n");
-		fprintf(f, "{\n");
-		fprintf(f, "while (exponentBResult < exponentAResults[exponentAResultsI])\n");
-		fprintf(f, "{\n");
-
-		fprintf(f, "exponentBResult = exponentBBase");
-		for (int i = 1; i < exponentB; i++)
-		{
-			fprintf(f, " * exponentBBase");
-		}
-		fprintf(f, ";\n");
-
-		fprintf(f, "exponentBBase++;\n");
-		fprintf(f, "}\n");
-
-
-		fprintf(f, "if (exponentBResult == exponentAResults[exponentAResultsI])\n");
-		fprintf(f, "{\n");
-		fprintf(f, "printf(\"%%d\\n\", exponentAResultsI);\n");
-		fprintf(f, "}\n");
-		fprintf(f, "}\n");
-		fprintf(f, "}\n");
-
-		fclose(f);
-		break;
+		stillGotWorkToDo = UpdateSource();
 	}
-	
-
-
-
-
-	
 	return 0;
 }
